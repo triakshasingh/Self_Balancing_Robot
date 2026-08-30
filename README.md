@@ -53,10 +53,6 @@ Both values below are the ESP32-S3 GPIO numbers used in the firmware.
 
 ![Schematic](images/schematic.png)
 
-Open [PCB/PCB.kicad_pro](PCB/PCB.kicad_pro) in KiCad 10 or newer. The schematic
-is complete; **the board layout (`PCB.kicad_pcb`) is still empty** — routing is
-the next step on the hardware side.
-
 ## Firmware
 
 Built with the Arduino core for ESP32. Only the bundled `Wire` library is
@@ -101,8 +97,8 @@ Gains live at the top of the main sketch:
 
 ```cpp
 float Kp = 45;
-float Ki = 0.0;
-float Kd = 0.0;
+float Ki = 80;
+float Kd = 1.2;
 ```
 
 Start with `Kp` alone and raise it until the robot oscillates around upright,
@@ -136,12 +132,6 @@ useful than a clean success story:
   mechanical "tick" at the end of its travel) and multimeter cross-checking
   rather than trusting the module's onboard display alone.
 
-## Status
-
-Working: schematic, firmware, balancing loop, encoder counting.
-Not done yet: PCB layout and routing; encoder counts are read but not used by
-the controller (no position or velocity hold — planned as a future outer
-control loop).
 
 ## License
 
