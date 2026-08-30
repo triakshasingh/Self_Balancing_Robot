@@ -1,0 +1,49 @@
+# ---------- macOS ----------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ---------- KiCad ----------
+# Auto-generated local history snapshots (contains its own nested git repo)
+.history/
+
+# Lock files created while a project is open
+*.lck
+~*.lck
+_autosave-*
+*-backups/
+fp-info-cache
+
+# Backups and recovery files
+*.kicad_pcb-bak
+*.kicad_sch-bak
+*.kicad_prl-bak
+*.bak
+*.000
+*-rescue.lib
+*-rescue.dcm
+
+# Per-user local project settings (paths, open windows, zoom level)
+*.kicad_prl
+
+# Generated outputs — regenerate from source instead of committing
+fabrication/
+gerbers/
+*.gbr
+*.drl
+*.net
+
+# ---------- Arduino / PlatformIO ----------
+build/
+.pio/
+.pioenvs/
+.piolibdeps/
+*.hex
+*.bin
+*.elf
+
+# ---------- Editors ----------
+.vscode/
+.idea/
+*.swp
