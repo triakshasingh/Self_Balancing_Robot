@@ -7,6 +7,11 @@ PID loop that drives the wheels to keep the chassis upright.
 
 ![Completed robot](images/completed_robot.png)
 
+**During Build**
+
+![During the build](images/during_build.png)
+![Design](images/completed_design.png)
+
 ## Contents
 
 | Path | What's in it |
@@ -51,8 +56,6 @@ Both values below are the ESP32-S3 GPIO numbers used in the firmware.
 Open [PCB/PCB.kicad_pro](PCB/PCB.kicad_pro) in KiCad 10 or newer. The schematic
 is complete; **the board layout (`PCB.kicad_pcb`) is still empty** — routing is
 the next step on the hardware side.
-
-![Completed design](images/completed_design.png)
 
 ## Firmware
 
@@ -107,13 +110,38 @@ then add `Kd` to damp the oscillation, and only then a small `Ki` to remove
 steady-state lean. The loop prints tilt, gyro rate, output and both encoder
 counts every 100 ms for tuning.
 
+## Debugging Notes
+
+A few real problems came up during this build, kept here because they're more
+useful than a clean success story:
+
+- **Arduino IDE partition scheme error** —
+  `{build.partitions}.csv: No such file or directory`. Caused by a generic
+  "ESP32 Family Device" board selection rather than the specific
+  "ESP32S3 Dev Module" — board-specific menus like Partition Scheme don't
+  populate until the exact board is selected.
+- **Serial Monitor showing nothing, despite working code** — traced through a
+  full diagnostic chain (OS-level port detection → Blink-only test →
+  Blink+Serial combined test) before finding the actual fault.
+- **The real bug: a clone IMU chip.** The MPU6050 breakout actually carries an
+  **MPU-6500** — a compatible but distinct sensor that responds on the I²C bus
+  (confirmed with a full address scanner) but reports a different `WHO_AM_I`
+  value (`0x70` instead of the expected `0x68`). Libraries that strictly check
+  this ID (e.g. Adafruit_MPU6050) refuse to initialize on the mismatch even
+  though the sensor works fine. Fixed by dropping the library and reading the
+  accelerometer/gyro registers directly over raw I²C — the MPU-6500 is
+  register-compatible for this purpose.
+- **A defective buck converter trimmer pot** — one LM2596 module's adjustment
+  range topped out around 7.85 V instead of reaching 5 V, confirmed by feel (a
+  mechanical "tick" at the end of its travel) and multimeter cross-checking
+  rather than trusting the module's onboard display alone.
+
 ## Status
 
 Working: schematic, firmware, balancing loop, encoder counting.
 Not done yet: PCB layout and routing; encoder counts are read but not used by
-the controller (no position or velocity hold).
-
-![During the build](images/during_build.png)
+the controller (no position or velocity hold — planned as a future outer
+control loop).
 
 ## License
 
