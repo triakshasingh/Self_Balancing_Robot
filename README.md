@@ -1,6 +1,6 @@
 # Self-Balancing Robot
 
-A two-wheeled inverted-pendulum robot built around a custom ESP32-S3 PCB. The
+A two-wheeled inverted-pendulum robot built around a ESP32-S3. The
 board carries the MCU, an IMU, a dual H-bridge motor driver and the power rail;
 firmware fuses accelerometer and gyroscope readings into a tilt angle and runs a
 PID loop that drives the wheels to keep the chassis upright.
