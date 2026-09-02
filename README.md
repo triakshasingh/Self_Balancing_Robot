@@ -6,6 +6,7 @@ firmware fuses accelerometer and gyroscope readings into a tilt angle and runs a
 PID loop that drives the wheels to keep the chassis upright.
 
 ![Completed robot](images/completed_robot.png)
+![Rebuilt after board replacement](images/new_completed.png)
 
 **During Build**
 
@@ -132,14 +133,36 @@ useful than a clean success story:
   range topped out around 7.85 V instead of reaching 5 V, confirmed by feel (a
   mechanical "tick" at the end of its travel) and multimeter cross-checking
   rather than trusting the module's onboard display alone.
-- **ESP32-S3 damaged by a brownout loop.** After overheating during earlier
-  testing, the board developed a fast, erratic LED-blink pattern on every
-  power-up and would no longer accept new firmware, even via the manual
-  BOOT+RESET bootloader sequence. Isolating the board completely (USB power
-  only, nothing else wired in) confirmed the instability came from the board
-  itself — most likely a damaged onboard voltage regulator — rather than
-  external wiring. Replaced with a NodeMCU ESP-32S, and added a backfeed
-  diode plus decoupling capacitors on the 5V rail to protect against a repeat.
+- **ESP32-S3 damaged by a brownout loop.** After the board overheated during
+  earlier testing, it started rejecting every new firmware upload with
+  `Failed to connect to ESP32-S3: No serial data received` — even the manual
+  BOOT+RESET bootloader-entry sequence didn't recover it. The board's onboard
+  LED was blinking fast and erratically on every power-up, which is the
+  classic signature of a **brownout reset loop**: the chip's built-in
+  protection resetting it over and over because supply voltage keeps dipping
+  below a safe threshold, before it can ever finish booting far enough to
+  accept a connection. To confirm whether the instability was coming from the
+  board itself or from something in the external wiring, every peripheral
+  (IMU, motor driver, encoders) was disconnected and the board powered on
+  USB alone — the fast flickering continued completely unchanged, isolating
+  the fault to the board itself, most likely a damaged onboard voltage
+  regulator no longer able to hold a stable output.
+
+  **Fix:** replaced the board with a NodeMCU ESP-32S, and added protection
+  against a repeat — a backfeed-blocking diode in series on the 5V rail (so
+  USB power and battery-fed power can never fight each other if both happen
+  to be connected at once) plus two decoupling capacitors in parallel (a
+  small 0.1 µF ceramic for fast noise, a larger electrolytic as a bulk
+  reservoir against slower current dips from the motors). The diode went in
+  backwards on the first attempt — reversed, it blocks current entirely
+  rather than just dropping voltage, which showed up as 0V instead of the
+  expected small drop, and was caught by measuring voltage on both sides of
+  it before and after flipping its orientation. The buck converter's output
+  was also nudged up slightly afterward, to compensate for the diode's own
+  forward voltage drop and keep the ESP32-S3 comfortably within its safe
+  input range under load rather than right at the edge of it.
+
+  ![Diode and capacitor protection circuit](images/protected_build.png)
 
 ## License
 
