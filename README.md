@@ -1,6 +1,6 @@
 # Self-Balancing Robot
 
-A two-wheeled inverted-pendulum robot built around a ESP32-S3. The
+A two-wheeled inverted-pendulum robot built around a NodeMCU ESP-32S. The
 board carries the MCU, an IMU, a dual H-bridge motor driver and the power rail;
 firmware fuses accelerometer and gyroscope readings into a tilt angle and runs a
 PID loop that drives the wheels to keep the chassis upright.
@@ -25,11 +25,12 @@ PID loop that drives the wheels to keep the chassis upright.
 
 | Part | Role |
 | --- | --- |
-| ESP32-S3-WROOM-1 | Main controller, USB programming |
+| NodeMCU ESP-32S | Main controller, USB programming |
 | MPU-6500 (MPU-6050 footprint) | 6-axis IMU over I²C at `0x68` |
 | DRV8833PW | Dual H-bridge, drives both gearmotors |
 | 2× geared DC motors with quadrature encoders | Drive and wheel odometry |
 | Passives | 4.7 kΩ I²C pull-ups, 10 kΩ pull-ups, 0.1 µF / 1 µF / 0.01 µF decoupling |
+| Power protection | Backfeed-blocking diode + parallel decoupling capacitors on the 5V rail (added after a brownout incident — see Debugging Notes) |
 | 3× push buttons | Boot, reset, user |
 
 The MPU-6500 is pin- and register-compatible with the MPU-6050 footprint used in
@@ -37,17 +38,17 @@ the schematic, so the same land pattern works for either part.
 
 ### Pin map
 
-Both values below are the ESP32-S3 GPIO numbers used in the firmware.
+GPIO numbers used in the firmware, for the NodeMCU ESP-32S:
 
 | Signal | GPIO |
 | --- | --- |
-| I²C SDA | 8 |
-| I²C SCL | 9 |
-| DRV8833 `AIN1` / `AIN2` | 4 / 5 |
-| DRV8833 `BIN1` / `BIN2` | 6 / 7 |
-| DRV8833 `STBY` | 15 |
-| Left encoder `C1` / `C2` | 16 / 17 |
-| Right encoder `C1` / `C2` | 18 / 21 |
+| I²C SDA | 21 |
+| I²C SCL | 22 |
+| DRV8833 `AIN1` / `AIN2` | 4 / 16 |
+| DRV8833 `BIN1` / `BIN2` | 17 / 5 |
+| DRV8833 `STBY` | 18 |
+| Left encoder `C1` / `C2` | 19 / 23 |
+| Right encoder `C1` / `C2` | 25 / 26 |
 
 ## PCB
 
@@ -62,7 +63,7 @@ driver.
 **Arduino IDE setup**
 
 1. Install the ESP32 board package (Boards Manager → *esp32* by Espressif).
-2. Select board **ESP32S3 Dev Module**.
+2. Select board **NodeMCU-32S**.
 3. Set the serial monitor to **115200 baud**.
 
 ### How it works
@@ -131,7 +132,14 @@ useful than a clean success story:
   range topped out around 7.85 V instead of reaching 5 V, confirmed by feel (a
   mechanical "tick" at the end of its travel) and multimeter cross-checking
   rather than trusting the module's onboard display alone.
-
+- **ESP32-S3 damaged by a brownout loop.** After overheating during earlier
+  testing, the board developed a fast, erratic LED-blink pattern on every
+  power-up and would no longer accept new firmware, even via the manual
+  BOOT+RESET bootloader sequence. Isolating the board completely (USB power
+  only, nothing else wired in) confirmed the instability came from the board
+  itself — most likely a damaged onboard voltage regulator — rather than
+  external wiring. Replaced with a NodeMCU ESP-32S, and added a backfeed
+  diode plus decoupling capacitors on the 5V rail to protect against a repeat.
 
 ## License
 
