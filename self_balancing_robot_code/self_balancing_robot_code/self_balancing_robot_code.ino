@@ -5,22 +5,21 @@
 // ============================================================
 
 // MPU-6500 I2C
-#define SDA_PIN 8
-#define SCL_PIN 9
+#define SDA_PIN 21
+#define SCL_PIN 22
 
 // DRV8833
 #define AIN1 4
-#define AIN2 5
-#define BIN1 6
-#define BIN2 7
-#define STBY 15
+#define AIN2 16
+#define BIN1 17
+#define BIN2 5
+#define STBY 18
 
 // Encoders
-#define ENC_L_C1 16
-#define ENC_L_C2 17
-#define ENC_R_C1 18
-#define ENC_R_C2 21
-
+#define ENC_L_C1 19
+#define ENC_L_C2 23
+#define ENC_R_C1 25
+#define ENC_R_C2 26
 // ============================================================
 // CALIBRATION SETTINGS
 // ============================================================
@@ -66,7 +65,7 @@ unsigned long lastTime = 0;
 // ============================================================
 
 
-float Kp = 45;
+float Kp = 100;
 float Ki = 0.0;
 float Kd = 0.0;
 
